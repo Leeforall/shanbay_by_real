@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+ <head> 
+  <title>Shanbay Oauth2 Demo</title> 
+  <link href="/css/main.css" rel="stylesheet" type="text/css" /> 
+  <style type="text/css">
+input.smallInput{border:1px solid black;FONT-SIZE: 9pt; FONT-STYLE: normal; FONT-VARIANT: normal; FONT-WEIGHT: normal; HEIGHT: 18px; LINE-HEIGHT: normal}
+</style> 
+  <!--
+            - JavaScript and HTML must be in separate files:
+            - [1]: http://developer.chrome.com/extensions/contentSecurityPolicy.html
+          --> 
+	
+   <script src="lib/jquery-2.0.3.min.js"></script>
+   <script src="js/common.js"></script>   	  
+   <script src="js/popup.js"></script>   	  
+ </head> 
+ <body>
+  <audio id="sound" preload="auto"> 
+  </audio>  
+  <div class="head">
+   <div class="logo">
+   <img id="logo" src="logo.png" />
+   </div>
+   <div class="user">
+   <img id="loading-mask" src="resources/images/loading-mask.gif" />
+   <a id="home" href="" class="hidden"><img id="avatar" /><br/><span id="nickname"></span></a> 
+   </div>
+   <div class="status">
+   <a id="login" class="hidden" href="#">登陆显示今日进度</a> 
+   <table id="statustable" class="statustable hidden"> 
+   <tbody>
+    <tr>
+	<th>今日</th><th>新词</th><th>剩余</th><th>打卡</th>
+	</tr> 
+	<tr>
+	<td id="today">--</td><td id="new">--</td><td id="left">--</td><td id="checkin">--</td>
+	</tr> 
+   </tbody>
+   </table>
+   </div>
+  </div> 
+  <table id="maintable"> 
+   <tbody>
+    <tr>
+     <td> <input type="text" name="word" id="word" style="width:160px;  " class="smallInput" autofocus="autofocus" /> <input type="button" id="querybutton" value="查询" /> </td>
+    </tr> 
+    <tr>
+     <td> 
+      <div id="result"> 
+	  <img id="wait" src="/resources/images/wait.gif" class="hidden" style="padding-left: 70px;">
+	  <div id="content"></div>
+	  <div id="definition" class="definition"></div>
+	  <div id="retention" class='hidden'> 
+	  <span>单词熟悉度</span>
+	 <div class="progress pull-left" style="border-radius: 0; width: 100%; margin-top: 2px;">
+	  <div class="bar" style="width: 20%"></div>
+	  <div class="bar" style="width: 20%"></div>
+	  <div class="bar" style="width: 20%"></div>
+	  <div class="bar" style="width: 20%"></div>
+	  <div class="bar" style="width: 20%"></div>
+     </div>
+	 </div>
+	 <div id="btns"></div>
+	 <div id="other"></div>
+      </div>
+	  </td>
+    </tr>
+    <tr  id="opt_text">
+     <td> 
+      <div>
+       <strong>选项设置:</strong>
+      </div> </td>
+    </tr> 
+    <tr id="opt_text">
+     <td> 
+      <div>
+       <input type="checkbox" id="dict_disable" value="false" /> 关闭划词翻译
+      </div> </td>
+    </tr> 
+    <tr id="opt_text">
+     <td> 
+      <div>
+       <input type="checkbox" id="ctrl_only" value="false" /> 指词即译模式（按下Ctrl键指词）
+      </div> </td>
+    </tr> 
+    <tr id="opt_text">
+     <td> 
+      <div>
+       <input type="checkbox" id="english_only" value="false" /> 仅对英文划译
+      </div> </td>
+    </tr> 
+    <tr>
+     <td> 
+      <div style="font-size:10px;float:right;">
+       <a href="#" id="feedback">意见反馈 </a> &nbsp;
+       <a href="#" id="logout">退出</a>
+      </div> </td>
+    </tr> 
+   </tbody>  
+  </table>
+ </body>
+</html>
