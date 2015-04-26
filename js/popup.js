@@ -29,12 +29,7 @@ var gWord;
 function searchWord(keyword) {
     console.log('search Word');
     $("#retention").addClass('hidden');
-    clearPrevious();
-    removeDiv('opt_text');
-    removeDiv('opt_text');
-    removeDiv('opt_text');
-    removeDiv('opt_text');
-
+    clearPreContent();
     waitForQuery();
 
     if (bg.oauth.token_valid()) {
@@ -48,12 +43,7 @@ function searchWord(keyword) {
 
 function searchChinese(keyword) {
     console.log('search Chinese');
-    $("#retention").addClass('hidden');
-    clearPrevious();
-    removeDiv('opt_text');
-    removeDiv('opt_text');
-    removeDiv('opt_text');
-    removeDiv('opt_text');
+    clearPreContent();
 
     waitForQuery();
     var youdao_api = 'http://fanyi.youdao.com/openapi.do?keyfrom=leeforall&key=468366660&type=data&doctype=json&version=1.1&q=' + encodeURIComponent(keyword);
@@ -64,7 +54,6 @@ function searchChinese(keyword) {
 function hendleChinese(data) {
     console.log(data);
 }
-
 
 function todayStatus() {
     console.log('Today Status');
@@ -96,7 +85,7 @@ function forgetWord() {
     var forget_api = bg.oauth.conf.api_root + '/bdc/learning/' + gWord.learning_id + '?access_token=' + bg.oauth.access_token();
     var formData = new FormData();
     formData.append('access_token', bg.oauth.access_token());　　
-    formData.append('retention', 1);
+    formData.append('forget', 1);
     makeRequest('PUT', forget_api, formData, handleForget);
 }
 
@@ -114,13 +103,49 @@ function handleForget(obj) {
     }
 }
 
+function addWord(id) {
+    console.log('add Word');
+    $('#loading-add').removeClass('hidden');
+    $('#interactive').addClass('hidden');
+    var add_api = bg.oauth.conf.api_root + '/bdc/learning/?access_token=' + bg.oauth.access_token();
+    var formData = new FormData();　
+    formData.append('id', id);
+    makeRequest('POST', add_api, formData, handleForget);
+}
+
+function handleForget(obj) {
+    var data = obj.data
+    if (data.id) {
+        var other = document.getElementById('other');
+        other.innerHTML = '<span class="highlight">' + gWord.content + '</span> 已加入学习<br>';
+		var t = document.getElementById('interactive');
+		t.onclick = function() {
+            goURL('http://shanbay.com/review/learning/' + data.id + '/');
+        };
+        t.setAttribute('value', '查看');
+        t.setAttribute('title', '单击前往练习');
+        $('#loading-add').addClass('hidden');
+        $('#interactive').removeClass('hidden');
+    } else {
+        var other = document.getElementById('other');
+        other.innerHTML = '<span class="highlight">' + gWord.content + '</span> 加入学习失败<br>';
+        $('#interactive').removeClass('hidden');
+        $('#loading-add').addClass('hidden');
+    }
+}
+
 function removeDiv(divname) {
     var div = document.getElementById(divname);
     if (div == null) return;
     div.parentNode.removeChild(div);
 }
 
-function clearPrevious() {
+function clearPreContent() {
+    $("#retention").addClass('hidden');
+    removeDiv('opt_text');
+    removeDiv('opt_text');
+    removeDiv('opt_text');
+    removeDiv('opt_text');
     var w = document.getElementById('content');
     var c = document.getElementById('definition');
     var other = document.getElementById('other');
@@ -129,6 +154,18 @@ function clearPrevious() {
     c.innerHTML = '';
     other.innerHTML = '';
     i.innerHTML = '';
+    clearProgress();
+
+}
+
+function clearProgress(){
+    index=0;
+    var bars = $('.progress .bar');
+    while (index < 5) {
+        $(bars[index]).removeClass('bar-success')
+        $(bars[index]).removeClass('bar-left')
+        index++;
+    }
 }
 
 /*
@@ -208,30 +245,36 @@ function handleWord(obj) {
 
 
         var bars = $('.progress .bar');
-        console.log(bars.length);
-        console.log(word.retention);
-        console.log(word.target_retention);
-        index = 0;
-        while (index < word.target_retention) {
-            if (index <= word.retention) {
-                $(bars[index]).addClass('bar-success')
-            } else {
-                $(bars[index]).addClass('bar-left')
+		index=0;
+        if(word.retention>=0&&word.target_retention){
+            console.log(word.retention);
+            console.log(word.target_retention);
+            while (index < word.target_retention) {
+                if (index <= word.retention) {
+                    $(bars[index]).addClass('bar-success')
+                } else {
+                    $(bars[index]).addClass('bar-left')
+                }
+                index++;
             }
-            index++;
+            $("#retention").removeClass('hidden');
         }
-        $("#retention").removeClass('hidden');
 
         t = document.createElement("input");
         t.setAttribute('id', 'interactive');
         t.setAttribute('type', 'button');
         if (!word.learning_id) {
             t.onclick = function() {
-                save(word)
+                addWord(word.id);
             };
             t.setAttribute('value', '添加单词');
             t.setAttribute('title', '单击添加新词');
+            var img = document.createElement('img');
+            img.setAttribute('id', 'loading-add');
+            img.setAttribute('src', 'resources/images/loading-mask.gif');
+            img.setAttribute('class', 'hidden');
             i.appendChild(t);
+            i.appendChild(img);
 
         } else {
             t.onclick = function() {
@@ -256,7 +299,7 @@ function handleWord(obj) {
             img.setAttribute('src', 'resources/images/loading-mask.gif');
             img.setAttribute('class', 'hidden');
             i.appendChild(t);
-            i.appendChild(t1);
+            //i.appendChild(t1);
             i.appendChild(t2);
             i.appendChild(img);
             other.innerHTML = '已经学习过<span class="highlight">' + word.content + '</span><br>';
